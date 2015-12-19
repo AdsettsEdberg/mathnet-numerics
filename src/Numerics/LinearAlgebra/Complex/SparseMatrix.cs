@@ -726,7 +726,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
                     CopyTo(result);
                 }
 
-                Control.LinearAlgebraProvider.ScaleArray(2.0, _storage.Values, _storage.Values);
+                Control.LinearAlgebraProvider.ScaleArray(2.0, sparseResult._storage.Values, sparseResult._storage.Values);
                 return;
             }
 
@@ -1494,7 +1494,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
 
         public override string ToTypeString()
         {
-            return string.Format("SparseMatrix {0}x{1}-Complex {2:P2} Filled", RowCount, ColumnCount, 100d * NonZerosCount / (RowCount * (double)ColumnCount));
+            return string.Format("SparseMatrix {0}x{1}-Complex {2:P2} Filled", RowCount, ColumnCount, NonZerosCount / (RowCount * (double)ColumnCount));
         }
     }
  }

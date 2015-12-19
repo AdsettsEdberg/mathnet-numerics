@@ -8,7 +8,8 @@ out/
 *.suo
 *.sln.docstates
 *.userprefs
-.vagrant/
+.vagrant
+.vs
 
 # Test & Analysis Results
 [Tt]est[Rr]esult*/
@@ -21,6 +22,8 @@ coverage.*
 *.psess
 *.vsp
 *.vspx
+*.lnt
+*.svclog
 
 # Caches
 _ReSharper*
@@ -33,6 +36,7 @@ _TeamCity*
 *.aps
 *.opensdf
 *.cachefile
+*.swp
 
 # Upgrades
 _UpgradeReport_Files/
@@ -61,7 +65,8 @@ packages/*
 
 # FAKE & Paket
 packages/FAKE
-tools/paket/paket.exe
+.paket/paket.exe
+.fake
 
 # Generated Doc Files
 docs/content/License.md

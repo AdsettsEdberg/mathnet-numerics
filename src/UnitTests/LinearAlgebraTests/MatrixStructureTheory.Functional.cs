@@ -37,8 +37,9 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests
     partial class MatrixStructureTheory<T>
     {
         [Theory]
-        public void CanMap(Matrix<T> matrix)
+        public void CanMap(TestMatrix testMatrix)
         {
+            Matrix<T> matrix = Get(testMatrix);
             Matrix<T> a = matrix.Map(x => x, Zeros.AllowSkip);
             Assert.That(a, Is.EqualTo(matrix));
             Assert.That(a.Storage.IsDense, Is.EqualTo(matrix.Storage.IsDense));
@@ -65,8 +66,9 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests
         }
 
         [Theory]
-        public void CanMapIndexed(Matrix<T> matrix)
+        public void CanMapIndexed(TestMatrix testMatrix)
         {
+            Matrix<T> matrix = Get(testMatrix);
             Matrix<T> a = matrix.MapIndexed((i, j, x) =>
             {
                 if (i != 0 || j != 1) Assert.That(matrix.At(i, j), Is.EqualTo(x));
@@ -101,8 +103,9 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests
         }
 
         [Theory]
-        public void CanMapInplace(Matrix<T> matrix)
+        public void CanMapInplace(TestMatrix testMatrix)
         {
+            Matrix<T> matrix = Get(testMatrix);
             var a = matrix.Clone();
             a.MapInplace(x => x, Zeros.AllowSkip);
             Assert.That(a, Is.EqualTo(matrix));
@@ -119,8 +122,9 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests
         }
 
         [Theory]
-        public void CanMapIndexedInplace(Matrix<T> matrix)
+        public void CanMapIndexedInplace(TestMatrix testMatrix)
         {
+            Matrix<T> matrix = Get(testMatrix);
             var a = matrix.Clone();
             a.MapIndexedInplace((i, j, x) =>
             {
@@ -146,8 +150,9 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests
         }
 
         [Theory]
-        public void CanMapSubMatrixToSame(Matrix<T> matrix)
+        public void CanMapSubMatrixToSame(TestMatrix testMatrix)
         {
+            Matrix<T> matrix = Get(testMatrix);
             T one = Matrix<T>.Build.One;
 
             // Full Range - not forced
@@ -169,8 +174,9 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests
         }
 
         [Theory]
-        public void CanMapSubMatrixToDense(Matrix<T> matrix)
+        public void CanMapSubMatrixToDense(TestMatrix testMatrix)
         {
+            Matrix<T> matrix = Get(testMatrix);
             T one = Matrix<T>.Build.One;
 
             // Full Range - not forced
@@ -209,8 +215,9 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests
         }
 
         [Theory]
-        public void CanMapSubMatrixToSparse(Matrix<T> matrix)
+        public void CanMapSubMatrixToSparse(TestMatrix testMatrix)
         {
+            Matrix<T> matrix = Get(testMatrix);
             T one = Matrix<T>.Build.One;
 
             // Full Range - filled, not forced
@@ -258,8 +265,10 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests
         }
 
         [Theory]
-        public void CanFoldRows(Matrix<T> matrix)
+        public void CanFoldRows(TestMatrix testMatrix)
         {
+            Matrix<T> matrix = Get(testMatrix);
+
             // not forced
             T[] rowSum = matrix.FoldByRow((s, x) => Operator<T>.Add(s, x), Operator<T>.Zero, Zeros.AllowSkip);
             for (int i = 0; i < rowSum.Length; i++)
@@ -279,8 +288,10 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests
         }
 
         [Theory]
-        public void CanFoldColumns(Matrix<T> matrix)
+        public void CanFoldColumns(TestMatrix testMatrix)
         {
+            Matrix<T> matrix = Get(testMatrix);
+
             // not forced
             T[] colSum = matrix.FoldByColumn((s, x) => Operator<T>.Add(s, x), Operator<T>.Zero, Zeros.AllowSkip);
             for (int i = 0; i < colSum.Length; i++)
@@ -297,6 +308,23 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests
 
             Assert.That(matrix.FoldByColumn((s, x) => s + 1.0, 0.0, Zeros.Include),
                 Is.EqualTo(Vector<double>.Build.Dense(matrix.ColumnCount, matrix.RowCount)), "forced - full coverage");
+        }
+
+        [Theory]
+        public void CanFold2(TestMatrix testMatrix)
+        {
+            Matrix<T> matrix = Get(testMatrix);
+
+            var other = -matrix;
+            other.Multiply(Operator.Convert<int, T>(2), other);
+
+            // not forced
+            T sum = matrix.Fold2((s, x, y) => Operator.Add(Operator.Add(x, y), s), Operator<T>.Zero, other, Zeros.AllowSkip);
+            Assert.That(sum, Is.EqualTo(Operator.Negate(matrix.Enumerate().Aggregate((a, b) => Operator<T>.Add(a, b)))));
+
+            // forced
+            T sum2 = matrix.Fold2((s, x, y) => Operator.Add(Operator.Add(x, y), s), Operator<T>.Zero, other, Zeros.Include);
+            Assert.That(sum2, Is.EqualTo(Operator.Negate(matrix.Enumerate().Aggregate((a, b) => Operator<T>.Add(a, b)))));
         }
     }
 }

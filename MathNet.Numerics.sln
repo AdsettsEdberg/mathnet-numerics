@@ -8,10 +8,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Readme", "Readme", "{C2F374
 		CONTRIBUTING.md = CONTRIBUTING.md
 		CONTRIBUTORS.md = CONTRIBUTORS.md
 		LICENSE.md = LICENSE.md
-		MAINTAINING.md = MAINTAINING.md
 		README.md = README.md
+		RELEASENOTES-CUDA.md = RELEASENOTES-CUDA.md
 		RELEASENOTES-Data.md = RELEASENOTES-Data.md
 		RELEASENOTES-MKL.md = RELEASENOTES-MKL.md
+		RELEASENOTES-OpenBLAS.md = RELEASENOTES-OpenBLAS.md
 		RELEASENOTES.md = RELEASENOTES.md
 	EndProjectSection
 EndProject
@@ -29,34 +30,41 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{A4A66FA9
 		build.fsx = build.fsx
 		build\MathNet.Numerics.Extension.nuspec = build\MathNet.Numerics.Extension.nuspec
 		build\MathNet.Numerics.nuspec = build\MathNet.Numerics.nuspec
+		build\NativeProvider.targets = build\NativeProvider.targets
 		paket.dependencies = paket.dependencies
 		paket.lock = paket.lock
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{039229DA-AFDA-48DB-B7FC-B064691DEE96}"
 	ProjectSection(SolutionItems) = preProject
-		docs\content\CSV.fsx = docs\content\CSV.fsx
-		docs\content\DescriptiveStatistics.fsx = docs\content\DescriptiveStatistics.fsx
-		docs\content\Distance.fsx = docs\content\Distance.fsx
-		docs\content\Euclid.fsx = docs\content\Euclid.fsx
-		docs\content\Functions.fsx = docs\content\Functions.fsx
-		docs\content\Generate.fsx = docs\content\Generate.fsx
-		docs\content\IFsharpNotebook.fsx = docs\content\IFsharpNotebook.fsx
-		docs\content\index.fsx = docs\content\index.fsx
-		docs\content\IntegralTransforms.fsx = docs\content\IntegralTransforms.fsx
-		docs\content\Integration.fsx = docs\content\Integration.fsx
-		docs\content\Interpolation.fsx = docs\content\Interpolation.fsx
-		docs\content\LinearEquations.fsx = docs\content\LinearEquations.fsx
-		docs\content\MatlabFiles.fsx = docs\content\MatlabFiles.fsx
-		docs\content\Matrix.fsx = docs\content\Matrix.fsx
-		docs\content\MatrixMarket.fsx = docs\content\MatrixMarket.fsx
-		docs\content\MKL.fsx = docs\content\MKL.fsx
-		docs\content\Probability.fsx = docs\content\Probability.fsx
-		docs\content\Random.fsx = docs\content\Random.fsx
-		docs\content\Regression.fsx = docs\content\Regression.fsx
+		docs\content\Build.md = docs\content\Build.md
+		docs\content\Compatibility.md = docs\content\Compatibility.md
+		docs\content\Constants.md = docs\content\Constants.md
+		docs\content\CSV.md = docs\content\CSV.md
+		docs\content\DescriptiveStatistics.md = docs\content\DescriptiveStatistics.md
+		docs\content\Distance.md = docs\content\Distance.md
+		docs\content\Euclid.md = docs\content\Euclid.md
+		docs\content\Functions.md = docs\content\Functions.md
+		docs\content\Generate.md = docs\content\Generate.md
+		docs\content\IFsharpNotebook.md = docs\content\IFsharpNotebook.md
+		docs\content\index.md = docs\content\index.md
+		docs\content\IntegralTransforms.md = docs\content\IntegralTransforms.md
+		docs\content\Integration.md = docs\content\Integration.md
+		docs\content\Interpolation.md = docs\content\Interpolation.md
+		docs\content\LinearEquations.md = docs\content\LinearEquations.md
+		docs\content\MatlabFiles.md = docs\content\MatlabFiles.md
+		docs\content\Matrix.md = docs\content\Matrix.md
+		docs\content\MatrixMarket.md = docs\content\MatrixMarket.md
+		docs\content\MKL.md = docs\content\MKL.md
+		docs\content\Packages.md = docs\content\Packages.md
+		docs\content\Probability.md = docs\content\Probability.md
+		docs\content\Random.md = docs\content\Random.md
+		docs\content\Regression.md = docs\content\Regression.md
 		docs\tools\templates\template.cshtml = docs\tools\templates\template.cshtml
-		docs\content\Users.fsx = docs\content\Users.fsx
+		docs\content\Users.md = docs\content\Users.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestData", "src\TestData\TestData.csproj", "{AF3253C9-4DB5-45A0-98CF-C105FDA9DA47}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,6 +97,12 @@ Global
 		{DAF07AA8-C5C9-4963-98F7-2C3285064DAD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DAF07AA8-C5C9-4963-98F7-2C3285064DAD}.Release-Signed|Any CPU.ActiveCfg = Release-Signed|Any CPU
 		{DAF07AA8-C5C9-4963-98F7-2C3285064DAD}.Release-Signed|Any CPU.Build.0 = Release-Signed|Any CPU
+		{AF3253C9-4DB5-45A0-98CF-C105FDA9DA47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF3253C9-4DB5-45A0-98CF-C105FDA9DA47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF3253C9-4DB5-45A0-98CF-C105FDA9DA47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF3253C9-4DB5-45A0-98CF-C105FDA9DA47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF3253C9-4DB5-45A0-98CF-C105FDA9DA47}.Release-Signed|Any CPU.ActiveCfg = Release-Signed|Any CPU
+		{AF3253C9-4DB5-45A0-98CF-C105FDA9DA47}.Release-Signed|Any CPU.Build.0 = Release-Signed|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

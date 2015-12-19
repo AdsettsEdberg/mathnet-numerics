@@ -4,7 +4,7 @@
 // http://github.com/mathnet/mathnet-numerics
 // http://mathnetnumerics.codeplex.com
 //
-// Copyright (c) 2009-2010 Math.NET
+// Copyright (c) 2009-2015 Math.NET
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -28,18 +28,26 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 // </copyright>
 
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Text;
+using MathNet.Numerics.Properties;
+
 namespace MathNet.Numerics.Statistics
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-    using Properties;
-
     /// <summary>
     /// A <see cref="Histogram"/> consists of a series of <see cref="Bucket"/>s,
     /// each representing a region limited by a lower bound (exclusive) and an upper bound (inclusive).
     /// </summary>
+    /// <remarks>
+    /// This type declares a DataContract for out of the box ephemeral serialization
+    /// with engines like DataContractSerializer, Protocol Buffers and FsPickler,
+    /// but does not guarantee any compatibility between versions.
+    /// It is not recommended to rely on this mechanism for durable persistance.
+    /// </remarks>
     [Serializable]
+    [DataContract(Namespace = "urn:MathNet/Numerics")]
     public class Bucket :
 #if PORTABLE
    IComparable<Bucket>
@@ -60,7 +68,7 @@ namespace MathNet.Numerics.Statistics
             /// <returns>-1 when the point is less than this bucket, 0 when it is in this bucket and 1 otherwise.</returns>
             public int Compare(Bucket bkt1, Bucket bkt2)
             {
-                return bkt2.Width == 0.0
+                return bkt2.IsSinglePoint
                     ? -bkt1.Contains(bkt2.UpperBound)
                     : -bkt2.Contains(bkt1.UpperBound);
             }
@@ -71,16 +79,22 @@ namespace MathNet.Numerics.Statistics
         /// <summary>
         /// Lower Bound of the Bucket.
         /// </summary>
+        [DataMember(Order = 1)]
         public double LowerBound { get; set; }
 
         /// <summary>
         /// Upper Bound of the Bucket.
         /// </summary>
+        [DataMember(Order = 2)]
         public double UpperBound { get; set; }
 
         /// <summary>
         /// The number of datapoints in the bucket.
         /// </summary>
+        /// <remarks>
+        /// Value may be NaN if this was constructed as a <see cref="IComparer{Bucket}"/> argument.
+        /// </remarks>
+        [DataMember(Order = 3)]
         public double Count { get; set; }
 
         /// <summary>
@@ -104,6 +118,18 @@ namespace MathNet.Numerics.Statistics
         }
 
         /// <summary>
+        /// Constructs a Bucket that can be used as an argument for a <see cref="IComparer{Bucket}"/>
+        /// like <see cref="DefaultPointComparer"/> when performing a Binary search.
+        /// </summary>
+        /// <param name="targetValue">Value to look for</param>
+        public Bucket(double targetValue)
+        {
+            LowerBound = targetValue;
+            UpperBound = targetValue;
+            Count = double.NaN;
+        }
+
+        /// <summary>
         /// Creates a copy of the Bucket with the lowerbound, upperbound and counts exactly equal.
         /// </summary>
         /// <returns>A cloned Bucket object.</returns>
@@ -121,6 +147,15 @@ namespace MathNet.Numerics.Statistics
         }
 
         /// <summary>
+        /// True if this is a single point argument for <see cref="IComparer{Bucket}"/>
+        /// when performing a Binary search.
+        /// </summary>
+        private bool IsSinglePoint
+        {
+            get { return double.IsNaN(Count); }
+        }
+
+        /// <summary>
         /// Default comparer.
         /// </summary>
         public static IComparer<Bucket> DefaultPointComparer
@@ -132,8 +167,10 @@ namespace MathNet.Numerics.Statistics
         /// This method check whether a point is contained within this bucket.
         /// </summary>
         /// <param name="x">The point to check.</param>
-        /// <returns>0 if the point falls within the bucket boundaries; -1 if the point is
-        /// smaller than the bucket, +1 if the point is larger than the bucket.</returns>
+        /// <returns>
+        ///  0 if the point falls within the bucket boundaries;
+        /// -1 if the point is smaller than the bucket,
+        /// +1 if the point is larger than the bucket.</returns>
         public int Contains(double x)
         {
             if (LowerBound < x)
@@ -152,6 +189,11 @@ namespace MathNet.Numerics.Statistics
         /// <summary>
         /// Comparison of two disjoint buckets. The buckets cannot be overlapping.
         /// </summary>
+        /// <returns>
+        ///  0 if <c>UpperBound</c> and <c>LowerBound</c> are bit-for-bit equal
+        ///  1 if This bucket is lower that the compared bucket
+        /// -1 otherwise
+        /// </returns>
         public int CompareTo(Bucket bucket)
         {
             if (UpperBound > bucket.LowerBound && LowerBound < bucket.LowerBound)
@@ -159,8 +201,8 @@ namespace MathNet.Numerics.Statistics
                 throw new ArgumentException(Resources.PartialOrderException);
             }
 
-            if (UpperBound.AlmostEqual(bucket.UpperBound)
-                && LowerBound.AlmostEqual(bucket.LowerBound))
+            if (UpperBound.Equals(bucket.UpperBound)
+                && LowerBound.Equals(bucket.LowerBound))
             {
                 return 0;
             }
@@ -174,9 +216,12 @@ namespace MathNet.Numerics.Statistics
         }
 
         /// <summary>
-        /// Checks whether two Buckets are equal; this method tolerates a difference in lowerbound, upperbound
-        /// and count given by <seealso cref="Precision.AlmostEqual(double,double)"/>.
+        /// Checks whether two Buckets are equal.
         /// </summary>
+        /// <remarks>
+        /// <c>UpperBound</c> and <c>LowerBound</c> are compared bit-for-bit, but This method tolerates a
+        /// difference in <c>Count</c> given by  <seealso cref="Precision.AlmostEqual(double,double)"/>.
+        /// </remarks>
         public override bool Equals(object obj)
         {
             if (!(obj is Bucket))
@@ -185,8 +230,8 @@ namespace MathNet.Numerics.Statistics
             }
 
             var bucket = (Bucket) obj;
-            return LowerBound.AlmostEqual(bucket.LowerBound)
-                && UpperBound.AlmostEqual(bucket.UpperBound)
+            return LowerBound.Equals(bucket.LowerBound)
+                && UpperBound.Equals(bucket.UpperBound)
                 && Count.AlmostEqual(bucket.Count);
         }
 
@@ -211,16 +256,19 @@ namespace MathNet.Numerics.Statistics
     /// A class which computes histograms of data.
     /// </summary>
     [Serializable]
+    [DataContract(Namespace = "urn:MathNet/Numerics")]
     public class Histogram
     {
         /// <summary>
         /// Contains all the <c>Bucket</c>s of the <c>Histogram</c>.
         /// </summary>
+        [DataMember(Order = 1)]
         private readonly List<Bucket> _buckets;
 
         /// <summary>
         /// Indicates whether the elements of <c>buckets</c> are currently sorted.
         /// </summary>
+        [DataMember(Order = 2)]
         private bool _areBucketsSorted;
 
         /// <summary>
@@ -257,10 +305,13 @@ namespace MathNet.Numerics.Statistics
 
             // Add buckets for each bin; the smallest bucket's lowerbound must be slightly smaller
             // than the minimal element.
-            AddBucket(new Bucket(lower.Decrement(), lower + width));
+            double fNextLowerBound = lower + width;
+            AddBucket(new Bucket(lower.Decrement(), fNextLowerBound));
             for (int n = 1; n < nbuckets; n++)
             {
-                AddBucket(new Bucket(lower + n * width, lower + (n + 1) * width));
+                AddBucket(new Bucket(
+                    fNextLowerBound,
+                    fNextLowerBound = (lower + (n + 1) * width)));
             }
 
             AddData(data);
@@ -307,7 +358,7 @@ namespace MathNet.Numerics.Statistics
             // Sort if needed.
             LazySort();
 
-            if (d < LowerBound)
+            if (d <= LowerBound)
             {
                 // Make the lower bound just slightly smaller than the datapoint so it is contained in this bucket.
                 _buckets[0].LowerBound = d.Decrement();
@@ -380,7 +431,7 @@ namespace MathNet.Numerics.Statistics
             LazySort();
 
             // Binary search for the bucket index.
-            int index = _buckets.BinarySearch(new Bucket(v, v), Bucket.DefaultPointComparer);
+            int index = _buckets.BinarySearch(new Bucket(v), Bucket.DefaultPointComparer);
 
             if (index < 0)
             {

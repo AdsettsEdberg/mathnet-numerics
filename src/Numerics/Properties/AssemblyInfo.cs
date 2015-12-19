@@ -45,9 +45,9 @@ using System.Runtime.InteropServices;
 [assembly: CLSCompliant(true)]
 [assembly: NeutralResourcesLanguage("en")]
 
-[assembly: AssemblyVersion("3.5.0.0")]
-[assembly: AssemblyFileVersion("3.5.0.0")]
-[assembly: AssemblyInformationalVersion("3.5.0")]
+[assembly: AssemblyVersion("3.9.0.0")]
+[assembly: AssemblyFileVersion("3.9.0.0")]
+[assembly: AssemblyInformationalVersion("3.9.0")]
 
 #if PORTABLE
 
@@ -76,6 +76,8 @@ using System.Runtime.InteropServices;
 #else
 [assembly: InternalsVisibleTo("MathNet.Numerics.UnitTests")]
 [assembly: InternalsVisibleTo("MathNet.Numerics.UnitTestsMKL")]
+[assembly: InternalsVisibleTo("MathNet.Numerics.UnitTestsCUDA")]
+[assembly: InternalsVisibleTo("MathNet.Numerics.UnitTestsOpenBLAS")]
 [assembly: InternalsVisibleTo("Performance")]
 #endif
 

@@ -118,7 +118,7 @@ namespace MathNet.Numerics.Distributions
         }
 
         /// <summary>
-        /// Gets or sets the shape (k) of the Weibull distribution. Range: k > 0.
+        /// Gets the shape (k) of the Weibull distribution. Range: k > 0.
         /// </summary>
         public double Shape
         {
@@ -126,7 +126,7 @@ namespace MathNet.Numerics.Distributions
         }
 
         /// <summary>
-        /// Gets or sets the scale (λ) of the Weibull distribution. Range: λ > 0.
+        /// Gets the scale (λ) of the Weibull distribution. Range: λ > 0.
         /// </summary>
         public double Scale
         {
@@ -418,6 +418,53 @@ namespace MathNet.Numerics.Distributions
             }
 
             return -SpecialFunctions.ExponentialMinusOne(-Math.Pow(x, shape)*Math.Pow(scale, -shape));
+        }
+
+        /// <summary>
+        /// Implemented according to: Parameter estimation of the Weibull probability distribution, 1994, Hongzhu Qiao, Chris P. Tsokos 
+        /// </summary>
+        /// <param name="samples"></param>
+        /// <param name="randomSource"></param>
+        /// <returns>Returns a Weibull distribution.</returns>
+        public static Weibull Estimate(IEnumerable<double> samples, System.Random randomSource = null)
+        {
+            var samp = samples as double[] ?? samples.ToArray();
+            double n = samp.Length, s1 = 0, s2 = 0, s3 = 0, previousC = Int32.MinValue, QofC = 0;
+
+            if (n <= 1) throw new Exception("Observations not sufficient");
+
+            // Start values
+            double c = 10; double b = 0;
+
+            while (Math.Abs(c - previousC) >= 0.0001)
+            {
+                s1 = s2 = s3 = 0;
+                foreach (double x in samp)
+                {
+                    if (x > 0)
+                    {
+                        s1 += Math.Log(x);
+                        s2 += Math.Pow(x, c);
+                        s3 += Math.Pow(x, c) * Math.Log(x);
+                    }
+                }
+                QofC = n * s2 / (n * s3 - s1 * s2);
+
+                previousC = c;
+                c = (c + QofC) / 2;
+            }
+
+            foreach (double x in samp)
+            {
+                if (x > 0)
+                {
+                    b += Math.Pow(x, c);
+                }
+            }
+
+            b = Math.Pow(b / n, 1 / c);
+
+            return new Weibull(c, b, randomSource);
         }
 
         /// <summary>

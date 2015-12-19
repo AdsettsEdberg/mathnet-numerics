@@ -4,7 +4,7 @@
 // http://github.com/mathnet/mathnet-numerics
 // http://mathnetnumerics.codeplex.com
 //
-// Copyright (c) 2009-2013 Math.NET
+// Copyright (c) 2009-2015 Math.NET
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -183,42 +183,6 @@ namespace MathNet.Numerics.LinearAlgebra.Storage
             return delta;
         }
 
-        public override void Clear()
-        {
-            ValueCount = 0;
-        }
-
-        public override void Clear(int index, int count)
-        {
-            if (index == 0 && count == Length)
-            {
-                Clear();
-                return;
-            }
-
-            var first = Array.BinarySearch(Indices, 0, ValueCount, index);
-            var last = Array.BinarySearch(Indices, 0, ValueCount, index + count - 1);
-            if (first < 0) first = ~first;
-            if (last < 0) last = ~last - 1;
-            int itemCount = last - first + 1;
-
-            if (itemCount > 0)
-            {
-                Array.Copy(Values, first + count, Values, first, ValueCount - first - count);
-                Array.Copy(Indices, first + count, Indices, first, ValueCount - first - count);
-
-                ValueCount -= count;
-            }
-
-            // Check whether we need to shrink the arrays. This is reasonable to do if
-            // there are a lot of non-zero elements and storage is two times bigger
-            if ((ValueCount > 1024) && (ValueCount < Indices.Length / 2))
-            {
-                Array.Resize(ref Values, ValueCount);
-                Array.Resize(ref Indices, ValueCount);
-            }
-        }
-
         public override bool Equals(VectorStorage<T> other)
         {
             // Reject equality when the argument is null or has a different shape.
@@ -291,6 +255,44 @@ namespace MathNet.Numerics.LinearAlgebra.Storage
                 }
             }
             return hash;
+        }
+
+        // CLEARING
+
+        public override void Clear()
+        {
+            ValueCount = 0;
+        }
+
+        public override void Clear(int index, int count)
+        {
+            if (index == 0 && count == Length)
+            {
+                Clear();
+                return;
+            }
+
+            var first = Array.BinarySearch(Indices, 0, ValueCount, index);
+            var last = Array.BinarySearch(Indices, 0, ValueCount, index + count - 1);
+            if (first < 0) first = ~first;
+            if (last < 0) last = ~last - 1;
+            int itemCount = last - first + 1;
+
+            if (itemCount > 0)
+            {
+                Array.Copy(Values, first + count, Values, first, ValueCount - first - count);
+                Array.Copy(Indices, first + count, Indices, first, ValueCount - first - count);
+
+                ValueCount -= count;
+            }
+
+            // Check whether we need to shrink the arrays. This is reasonable to do if
+            // there are a lot of non-zero elements and storage is two times bigger
+            if ((ValueCount > 1024) && (ValueCount < Indices.Length / 2))
+            {
+                Array.Resize(ref Values, ValueCount);
+                Array.Resize(ref Indices, ValueCount);
+            }
         }
 
         // INITIALIZATION
@@ -417,7 +419,7 @@ namespace MathNet.Numerics.LinearAlgebra.Storage
 
         // VECTOR COPY
 
-        internal override void CopyToUnchecked(VectorStorage<T> target, ExistingData existingData = ExistingData.Clear)
+        internal override void CopyToUnchecked(VectorStorage<T> target, ExistingData existingData)
         {
             var sparseTarget = target as SparseVectorStorage<T>;
             if (sparseTarget != null)
@@ -461,14 +463,14 @@ namespace MathNet.Numerics.LinearAlgebra.Storage
 
             if (ValueCount != 0)
             {
-                Array.Copy(Values, target.Values, ValueCount);
+                Array.Copy(Values, 0, target.Values, 0, ValueCount);
                 Buffer.BlockCopy(Indices, 0, target.Indices, 0, ValueCount * Constants.SizeOfInt);
             }
         }
 
         // Row COPY
 
-        internal override void CopyToRowUnchecked(MatrixStorage<T> target, int rowIndex, ExistingData existingData = ExistingData.Clear)
+        internal override void CopyToRowUnchecked(MatrixStorage<T> target, int rowIndex, ExistingData existingData)
         {
             if (existingData == ExistingData.Clear)
             {
@@ -488,7 +490,7 @@ namespace MathNet.Numerics.LinearAlgebra.Storage
 
         // COLUMN COPY
 
-        internal override void CopyToColumnUnchecked(MatrixStorage<T> target, int columnIndex, ExistingData existingData = ExistingData.Clear)
+        internal override void CopyToColumnUnchecked(MatrixStorage<T> target, int columnIndex, ExistingData existingData)
         {
             if (existingData == ExistingData.Clear)
             {
@@ -509,8 +511,7 @@ namespace MathNet.Numerics.LinearAlgebra.Storage
         // SUB-VECTOR COPY
 
         internal override void CopySubVectorToUnchecked(VectorStorage<T> target,
-            int sourceIndex, int targetIndex, int count,
-            ExistingData existingData = ExistingData.Clear)
+            int sourceIndex, int targetIndex, int count, ExistingData existingData)
         {
             var sparseTarget = target as SparseVectorStorage<T>;
             if (sparseTarget != null)
@@ -646,10 +647,120 @@ namespace MathNet.Numerics.LinearAlgebra.Storage
             }
         }
 
+        // FIND
+
+        public override Tuple<int, T> Find(Func<T, bool> predicate, Zeros zeros)
+        {
+            for (int i = 0; i < ValueCount; i++)
+            {
+                if (predicate(Values[i]))
+                {
+                    return new Tuple<int, T>(Indices[i], Values[i]);
+                }
+            }
+            if (zeros == Zeros.Include && ValueCount < Length && predicate(Zero))
+            {
+                for (int i = 0; i < Length; i++)
+                {
+                    if (i >= ValueCount || Indices[i] != i)
+                    {
+                        return new Tuple<int, T>(i, Zero);
+                    }
+                }
+            }
+            return null;
+        }
+
+        internal override Tuple<int, T, TOther> Find2Unchecked<TOther>(VectorStorage<TOther> other, Func<T, TOther, bool> predicate, Zeros zeros)
+        {
+            var denseOther = other as DenseVectorStorage<TOther>;
+            if (denseOther != null)
+            {
+                TOther[] otherData = denseOther.Data;
+                int k = 0;
+                for (int i = 0; i < otherData.Length; i++)
+                {
+                    if (k < ValueCount && Indices[k] == i)
+                    {
+                        if (predicate(Values[k], otherData[i]))
+                        {
+                            return new Tuple<int, T, TOther>(i, Values[k], otherData[i]);
+                        }
+                        k++;
+                    }
+                    else
+                    {
+                        if (predicate(Zero, otherData[i]))
+                        {
+                            return new Tuple<int, T, TOther>(i, Zero, otherData[i]);
+                        }
+                    }
+                }
+                return null;
+            }
+
+            var sparseOther = other as SparseVectorStorage<TOther>;
+            if (sparseOther != null)
+            {
+                int[] otherIndices = sparseOther.Indices;
+                TOther[] otherValues = sparseOther.Values;
+                int otherValueCount = sparseOther.ValueCount;
+                TOther otherZero = BuilderInstance<TOther>.Matrix.Zero;
+
+                // Full Scan
+                int k = 0, otherk = 0;
+                if (zeros == Zeros.Include && ValueCount < Length && sparseOther.ValueCount < Length && predicate(Zero, otherZero))
+                {
+                    for (int i = 0; i < Length; i++)
+                    {
+                        var left = k < ValueCount && Indices[k] == i ? Values[k++] : Zero;
+                        var right = otherk < otherValueCount && otherIndices[otherk] == i ? otherValues[otherk++] : otherZero;
+                        if (predicate(left, right))
+                        {
+                            return new Tuple<int, T, TOther>(i, left, right);
+                        }
+                    }
+                    return null;
+                }
+
+                // Sparse Scan
+                k = 0;
+                otherk = 0;
+                while (k < ValueCount || otherk < otherValueCount)
+                {
+                    if (k == ValueCount || otherk < otherValueCount && Indices[k] > otherIndices[otherk])
+                    {
+                        if (predicate(Zero, otherValues[otherk++]))
+                        {
+                            return new Tuple<int, T, TOther>(otherIndices[otherk - 1], Zero, otherValues[otherk - 1]);
+                        }
+                    }
+                    else if (otherk == otherValueCount || Indices[k] < otherIndices[otherk])
+                    {
+                        if (predicate(Values[k++], otherZero))
+                        {
+                            return new Tuple<int, T, TOther>(Indices[k - 1], Values[k - 1], otherZero);
+                        }
+                    }
+                    else
+                    {
+                        if (predicate(Values[k++], otherValues[otherk++]))
+                        {
+                            return new Tuple<int, T, TOther>(Indices[k - 1], Values[k - 1], otherValues[otherk - 1]);
+                        }
+                    }
+                }
+                return null;
+            }
+
+            // FALL BACK
+
+            return base.Find2Unchecked(other, predicate, zeros);
+        }
+
         // FUNCTIONAL COMBINATORS
 
-        internal override void MapToUnchecked<TU>(VectorStorage<TU> target, Func<T, TU> f,
-            Zeros zeros = Zeros.AllowSkip, ExistingData existingData = ExistingData.Clear)
+        internal override void MapToUnchecked<TU>(VectorStorage<TU> target, Func<T, TU> f, Zeros zeros, ExistingData existingData)
         {
             var sparseTarget = target as SparseVectorStorage<TU>;
             if (sparseTarget != null)
@@ -723,8 +834,7 @@ namespace MathNet.Numerics.LinearAlgebra.Storage
             base.MapToUnchecked(target, f, zeros, existingData);
         }
 
-        internal override void MapIndexedToUnchecked<TU>(VectorStorage<TU> target, Func<int, T, TU> f,
-            Zeros zeros = Zeros.AllowSkip, ExistingData existingData = ExistingData.Clear)
+        internal override void MapIndexedToUnchecked<TU>(VectorStorage<TU> target, Func<int, T, TU> f, Zeros zeros, ExistingData existingData)
         {
             var sparseTarget = target as SparseVectorStorage<TU>;
             if (sparseTarget != null)
@@ -798,7 +908,7 @@ namespace MathNet.Numerics.LinearAlgebra.Storage
             base.MapIndexedToUnchecked(target, f, zeros, existingData);
         }
 
-        internal override void Map2ToUnchecked(VectorStorage<T> target, VectorStorage<T> other, Func<T, T, T> f, Zeros zeros = Zeros.AllowSkip, ExistingData existingData = ExistingData.Clear)
+        internal override void Map2ToUnchecked(VectorStorage<T> target, VectorStorage<T> other, Func<T, T, T> f, Zeros zeros, ExistingData existingData)
         {
             var processZeros = zeros == Zeros.Include || !Zero.Equals(f(Zero, Zero));
 
@@ -948,7 +1058,7 @@ namespace MathNet.Numerics.LinearAlgebra.Storage
             base.Map2ToUnchecked(target, other, f, zeros, existingData);
         }
 
-        internal override TState Fold2Unchecked<TOther, TState>(VectorStorage<TOther> other, Func<TState, T, TOther, TState> f, TState state, Zeros zeros = Zeros.AllowSkip)
+        internal override TState Fold2Unchecked<TOther, TState>(VectorStorage<TOther> other, Func<TState, T, TOther, TState> f, TState state, Zeros zeros)
         {
             var sparseOther = other as SparseVectorStorage<TOther>;
             if (sparseOther != null)

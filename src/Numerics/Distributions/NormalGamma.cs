@@ -169,7 +169,7 @@ namespace MathNet.Numerics.Distributions
         }
 
         /// <summary>
-        /// Gets or sets the location of the mean.
+        /// Gets the location of the mean.
         /// </summary>
         public double MeanLocation
         {
@@ -177,7 +177,7 @@ namespace MathNet.Numerics.Distributions
         }
 
         /// <summary>
-        /// Gets or sets the scale of the mean.
+        /// Gets the scale of the mean.
         /// </summary>
         public double MeanScale
         {
@@ -185,7 +185,7 @@ namespace MathNet.Numerics.Distributions
         }
 
         /// <summary>
-        /// Gets or sets the shape of the precision.
+        /// Gets the shape of the precision.
         /// </summary>
         public double PrecisionShape
         {
@@ -193,7 +193,7 @@ namespace MathNet.Numerics.Distributions
         }
 
         /// <summary>
-        /// Gets or sets the inverse scale of the precision.
+        /// Gets the inverse scale of the precision.
         /// </summary>
         public double PrecisionInverseScale
         {
@@ -281,6 +281,11 @@ namespace MathNet.Numerics.Distributions
             if (_meanScale <= 0.0)
             {
                 throw new NotSupportedException();
+            }
+
+            if (_precisionShape > 160.0)
+            {
+                return Math.Exp(DensityLn(mean, prec));
             }
 
             // double e = -0.5 * prec * (mean - _meanLocation) * (mean - _meanLocation) - prec * _precisionInvScale;

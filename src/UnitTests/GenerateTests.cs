@@ -34,6 +34,10 @@ using NUnit.Framework;
 
 namespace MathNet.Numerics.UnitTests
 {
+#if !NOSYSNUMERICS
+    using System.Numerics;
+#endif
+
     [TestFixture]
     public class GenerateTests
     {
@@ -217,5 +221,38 @@ namespace MathNet.Numerics.UnitTests
                 Generate.PeriodicImpulseSequence(100, 5, 40).Take(1000).ToArray(),
                 Is.EqualTo(Generate.PeriodicImpulse(1000, 100, 5, 40)).AsCollection);
         }
+
+        [Test]
+        public void UnfoldConsistentWithSequence()
+        {
+            Assert.That(
+                Generate.UnfoldSequence((s => new Tuple<int, int>(s + 1, s + 1)), 0).Take(250).ToArray(),
+                Is.EqualTo(Generate.Unfold(250, (s => new Tuple<int, int>(s + 1, s + 1)), 0)).AsCollection);
+        }
+
+#if !NOSYSNUMERICS
+
+        [Test]
+        public void FibonacciConsistentWithSequence()
+        {
+            Assert.That(
+                Generate.FibonacciSequence().Take(250).ToArray(),
+                Is.EqualTo(Generate.Fibonacci(250)).AsCollection);
+        }
+
+        [Test]
+        public void FibonacciConsistentWithUnfold()
+        {
+            Assert.That(
+                Generate.FibonacciSequence().Take(250).ToArray(),
+                Is.EqualTo(new[] { BigInteger.Zero, BigInteger.One }.Concat(Generate.Unfold(248, (s =>
+                {
+                    var z = s.Item1 + s.Item2;
+                    return new Tuple<BigInteger, Tuple<BigInteger, BigInteger>>(z, new Tuple<BigInteger, BigInteger>(s.Item2, z));
+                }), new Tuple<BigInteger, BigInteger>(BigInteger.Zero, BigInteger.One)))).AsCollection);
+        }
+
+#endif
+
     }
 }

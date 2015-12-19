@@ -1,10 +1,10 @@
-﻿// <copyright file="DescriptiveStatistics.cs" company="Math.NET">
+﻿// <copyright file="RunningStatistics.cs" company="Math.NET">
 // Math.NET Numerics, part of the Math.NET Project
 // http://numerics.mathdotnet.com
 // http://github.com/mathnet/mathnet-numerics
 // http://mathnetnumerics.codeplex.com
 //
-// Copyright (c) 2009-2014 Math.NET
+// Copyright (c) 2009-2015 Math.NET
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -33,22 +33,43 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace MathNet.Numerics.Statistics
 {
     /// <summary>
-    /// Running statistics, allows updating by adding values,
-    /// or combining
+    /// Running statistics accumulator, allows updating by adding values
+    /// or by combining two accumulators.
     /// </summary>
+    /// <remarks>
+    /// This type declares a DataContract for out of the box ephemeral serialization
+    /// with engines like DataContractSerializer, Protocol Buffers and FsPickler,
+    /// but does not guarantee any compatibility between versions.
+    /// It is not recommended to rely on this mechanism for durable persistance.
+    /// </remarks>
+    [DataContract(Namespace = "urn:MathNet/Numerics")]
     public class RunningStatistics
     {
+        [DataMember(Order = 1)]
         long _n;
-        double _m1;
-        double _m2;
-        double _m3;
-        double _m4;
+
+        [DataMember(Order = 2)]
         double _min = double.PositiveInfinity;
+
+        [DataMember(Order = 3)]
         double _max = double.NegativeInfinity;
+
+        [DataMember(Order = 4)]
+        double _m1;
+
+        [DataMember(Order = 5)]
+        double _m2;
+
+        [DataMember(Order = 6)]
+        double _m3;
+
+        [DataMember(Order = 7)]
+        double _m4;
 
         public RunningStatistics()
         {
@@ -190,12 +211,12 @@ namespace MathNet.Numerics.Statistics
             _m3 += t*s*(_n - 2) - 3*s*_m2;
             _m2 += t;
 
-            if (_min > value)
+            if (value < _min || double.IsNaN(value))
             {
                 _min = value;
             }
 
-            if (_max < value)
+            if (value > _max || double.IsNaN(value))
             {
                 _max = value;
             }
@@ -230,7 +251,10 @@ namespace MathNet.Numerics.Statistics
             double m4 = a._m4 + b._m4 + d4*a._n*b._n*(a._n*a._n - a._n*b._n + b._n*b._n)/(n*n*n)
                         + 6*d2*(a._n*a._n*b._m2 + b._n*b._n*a._m2)/(n*n) + 4*d*(a._n*b._m3 - b._n*a._m3)/n;
 
-            return new RunningStatistics { _n = n, _m1 = m1, _m2 = m2, _m3 = m3, _m4 = m4 };
+            double min = Math.Min(a._min, b._min);
+            double max = Math.Max(a._max, b._max);
+
+            return new RunningStatistics { _n = n, _m1 = m1, _m2 = m2, _m3 = m3, _m4 = m4, _min = min, _max = max };
         }
 
         public static RunningStatistics operator +(RunningStatistics a, RunningStatistics b)

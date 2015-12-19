@@ -4,7 +4,7 @@
 // http://github.com/mathnet/mathnet-numerics
 // http://mathnetnumerics.codeplex.com
 //
-// Copyright (c) 2009-2013 Math.NET
+// Copyright (c) 2009-2015 Math.NET
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -392,7 +392,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
                 sparseResult._storage.Indices = new int[_storage.ValueCount];
                 Buffer.BlockCopy(_storage.Indices, 0, sparseResult._storage.Indices, 0, _storage.ValueCount*Constants.SizeOfInt);
                 sparseResult._storage.Values = new Complex32[_storage.ValueCount];
-                Array.Copy(_storage.Values, sparseResult._storage.Values, _storage.ValueCount);
+                Array.Copy(_storage.Values, 0, sparseResult._storage.Values, 0, _storage.ValueCount);
             }
 
             Control.LinearAlgebraProvider.ScaleArray(-Complex32.One, sparseResult._storage.Values, sparseResult._storage.Values);
@@ -413,7 +413,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
                     sparseResult._storage.Indices = new int[_storage.ValueCount];
                     Buffer.BlockCopy(_storage.Indices, 0, sparseResult._storage.Indices, 0, _storage.ValueCount*Constants.SizeOfInt);
                     sparseResult._storage.Values = new Complex32[_storage.ValueCount];
-                    Array.Copy(_storage.Values, sparseResult._storage.Values, _storage.ValueCount);
+                    Array.Copy(_storage.Values, 0, sparseResult._storage.Values, 0, _storage.ValueCount);
                 }
 
                 Control.LinearAlgebraProvider.ConjugateArray(sparseResult._storage.Values, sparseResult._storage.Values);
@@ -455,7 +455,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
                     sparseResult._storage.Indices = new int[_storage.ValueCount];
                     Buffer.BlockCopy(_storage.Indices, 0, sparseResult._storage.Indices, 0, _storage.ValueCount * Constants.SizeOfInt);
                     sparseResult._storage.Values = new Complex32[_storage.ValueCount];
-                    Array.Copy(_storage.Values, sparseResult._storage.Values, _storage.ValueCount);
+                    Array.Copy(_storage.Values, 0, sparseResult._storage.Values, 0, _storage.ValueCount);
                 }
 
                 Control.LinearAlgebraProvider.ScaleArray(scalar, sparseResult._storage.Values, sparseResult._storage.Values);
@@ -671,6 +671,33 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
                 {
                     index = i;
                     min = test;
+                }
+            }
+
+            return _storage.Indices[index];
+        }
+
+        /// <summary>
+        /// Returns the index of the absolute maximum element.
+        /// </summary>
+        /// <returns>The index of absolute maximum element.</returns>
+        public override int AbsoluteMaximumIndex()
+        {
+            if (_storage.ValueCount == 0)
+            {
+                // No non-zero elements. Return 0
+                return 0;
+            }
+
+            var index = 0;
+            var max = _storage.Values[index].Magnitude;
+            for (var i = 1; i < _storage.ValueCount; i++)
+            {
+                var test = _storage.Values[i].Magnitude;
+                if (test > max)
+                {
+                    index = i;
+                    max = test;
                 }
             }
 

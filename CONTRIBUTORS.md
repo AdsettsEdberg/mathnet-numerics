@@ -7,7 +7,7 @@ The Math.NET project is a community effort. We accept contributions and pull req
 
 ### Maintainers
 
-- [Christoph Rüegg](http://christoph.ruegg.name/) (@cdrnet)
+- [Christoph Rüegg](http://christoph.ruegg.name/) (@cdrnet) ([keybase.io/cdrnet](https://keybase.io/cdrnet))
 
 ### Code Contributors
 
@@ -20,8 +20,10 @@ Feel free to add a link to your personal site/blog and/or twitter handle.*
 - Alexander Karatarakis
 - Thomas Ibel
 - Gustavo Guerra
+- Kuan Bartel
 - Alexander Täschner
 - Hani Medhat
+- Matthew A. Johnson
 - manyue
 - David Prince
 - Andriy Bratiychuk
@@ -33,29 +35,41 @@ Feel free to add a link to your personal site/blog and/or twitter handle.*
 - Phil Cleveland
 - Scott Stephens
 - Superbest
+- lionpeloux
 - Anders Gustafsson
 - Gauthier Segay
 - Hythem Sidky
+- John C Barstow
+- Justin Needham
 - Patrick van der Velde
 - Robin Neatherway
 - Andrew Kazyrevich
 - Ethar Alali
 - Feodor Fitsner
 - Iain McDonald
+- Jon Larborn
 - Kyle Parrigan
+- borfudin
+- BenHewins
 - Gregor959
 - IUser
 - Iain Sproat
 - Jeff Mastry
 - Kosei ABE
 - Martin Posch
+- Matt Heffron
+- Max Malook
 - Paul Varkey
 - Sunny Ahuwanya
 - Till Hoffmann
 - Tomas Petricek
 - ViK
 - VicPara
+- Volker Breuer
+- Baltazar Bieniek
 - bstrausser
+- grovesNL
+- logophobia
 - mjmckp
 - nyuriks
 - seahearman

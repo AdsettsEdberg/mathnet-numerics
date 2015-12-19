@@ -4,7 +4,7 @@
 // http://github.com/mathnet/mathnet-numerics
 // http://mathnetnumerics.codeplex.com
 //
-// Copyright (c) 2009-2014 Math.NET
+// Copyright (c) 2009-2015 Math.NET
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -112,7 +112,7 @@ namespace MathNet.Numerics.Distributions
         }
 
         /// <summary>
-        /// Gets or sets the α shape parameter of the Beta distribution. Range: α ≥ 0.
+        /// Gets the α shape parameter of the Beta distribution. Range: α ≥ 0.
         /// </summary>
         public double A
         {
@@ -120,7 +120,7 @@ namespace MathNet.Numerics.Distributions
         }
 
         /// <summary>
-        /// Gets or sets the β shape parameter of the Beta distribution. Range: β ≥ 0.
+        /// Gets the β shape parameter of the Beta distribution. Range: β ≥ 0.
         /// </summary>
         public double B
         {
@@ -413,14 +413,14 @@ namespace MathNet.Numerics.Distributions
         /// <param name="a">The α shape parameter of the Beta distribution. Range: α ≥ 0.</param>
         /// <param name="b">The β shape parameter of the Beta distribution. Range: β ≥ 0.</param>
         /// <returns>a random number from the Beta distribution.</returns>
-        static double SampleUnchecked(System.Random rnd, double a, double b)
+        static internal double SampleUnchecked(System.Random rnd, double a, double b)
         {
             var x = Gamma.SampleUnchecked(rnd, a, 1.0);
             var y = Gamma.SampleUnchecked(rnd, b, 1.0);
             return x/(x + y);
         }
 
-        static void SamplesUnchecked(System.Random rnd, double[] values, double a, double b)
+        static internal void SamplesUnchecked(System.Random rnd, double[] values, double a, double b)
         {
             var y = new double[values.Length];
             Gamma.SamplesUnchecked(rnd, values, a, 1.0);
@@ -500,6 +500,11 @@ namespace MathNet.Numerics.Distributions
             if (a == 1.0 && b == 1.0)
             {
                 return 1.0;
+            }
+
+            if (a > 80.0 || b > 80.0)
+            {
+                return Math.Exp(PDFLn(a, b, x));
             }
 
             var bb = SpecialFunctions.Gamma(a + b)/(SpecialFunctions.Gamma(a)*SpecialFunctions.Gamma(b));

@@ -4,7 +4,7 @@
 // http://github.com/mathnet/mathnet-numerics
 // http://mathnetnumerics.codeplex.com
 //
-// Copyright (c) 2009-2014 Math.NET
+// Copyright (c) 2009-2015 Math.NET
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -56,6 +56,21 @@ namespace MathNet.Numerics.Statistics
         /// <summary>
         /// Returns the minimum value in the sample data.
         /// Returns NaN if data is empty or if any entry is NaN.
+        /// </summary>
+        /// <param name="data">The sample data.</param>
+        /// <returns>The minimum value in the sample data.</returns>
+        public static float Minimum(this IEnumerable<float> data)
+        {
+            var array = data as float[];
+            return array != null
+                ? ArrayStatistics.Minimum(array)
+                : StreamingStatistics.Minimum(data);
+        }
+
+
+        /// <summary>
+        /// Returns the minimum value in the sample data.
+        /// Returns NaN if data is empty or if any entry is NaN.
         /// Null-entries are ignored.
         /// </summary>
         /// <param name="data">The sample data.</param>
@@ -74,6 +89,20 @@ namespace MathNet.Numerics.Statistics
         public static double Maximum(this IEnumerable<double> data)
         {
             var array = data as double[];
+            return array != null
+                ? ArrayStatistics.Maximum(array)
+                : StreamingStatistics.Maximum(data);
+        }
+
+        /// <summary>
+        /// Returns the maximum value in the sample data.
+        /// Returns NaN if data is empty or if any entry is NaN.
+        /// </summary>
+        /// <param name="data">The sample data.</param>
+        /// <returns>The maximum value in the sample data.</returns>
+        public static float Maximum(this IEnumerable<float> data)
+        {
+            var array = data as float[];
             return array != null
                 ? ArrayStatistics.Maximum(array)
                 : StreamingStatistics.Maximum(data);
@@ -108,6 +137,20 @@ namespace MathNet.Numerics.Statistics
         /// <summary>
         /// Evaluates the sample mean, an estimate of the population mean.
         /// Returns NaN if data is empty or if any entry is NaN.
+        /// </summary>
+        /// <param name="data">The data to calculate the mean of.</param>
+        /// <returns>The mean of the sample.</returns>
+        public static double Mean(this IEnumerable<float> data)
+        {
+            var array = data as float[];
+            return array != null
+                ? ArrayStatistics.Mean(array)
+                : StreamingStatistics.Mean(data);
+        }
+
+        /// <summary>
+        /// Evaluates the sample mean, an estimate of the population mean.
+        /// Returns NaN if data is empty or if any entry is NaN.
         /// Null-entries are ignored.
         /// </summary>
         /// <param name="data">The data to calculate the mean of.</param>
@@ -115,6 +158,34 @@ namespace MathNet.Numerics.Statistics
         public static double Mean(this IEnumerable<double?> data)
         {
             return StreamingStatistics.Mean(data.Where(d => d.HasValue).Select(d => d.Value));
+        }
+
+        /// <summary>
+        /// Evaluates the geometric mean.
+        /// Returns NaN if data is empty or if any entry is NaN.
+        /// </summary>
+        /// <param name="data">The data to calculate the geometric mean of.</param>
+        /// <returns>The geometric mean of the sample.</returns>
+        public static double GeometricMean(this IEnumerable<double> data)
+        {
+            var array = data as double[];
+            return array != null
+                ? ArrayStatistics.GeometricMean(array)
+                : StreamingStatistics.GeometricMean(data);
+        }
+
+        /// <summary>
+        /// Evaluates the harmonic mean.
+        /// Returns NaN if data is empty or if any entry is NaN.
+        /// </summary>
+        /// <param name="data">The data to calculate the harmonic mean of.</param>
+        /// <returns>The harmonic mean of the sample.</returns>
+        public static double HarmonicMean(this IEnumerable<double> data)
+        {
+            var array = data as double[];
+            return array != null
+                ? ArrayStatistics.HarmonicMean(array)
+                : StreamingStatistics.HarmonicMean(data);
         }
 
         /// <summary>
@@ -126,6 +197,20 @@ namespace MathNet.Numerics.Statistics
         public static double Variance(this IEnumerable<double> samples)
         {
             var array = samples as double[];
+            return array != null
+                ? ArrayStatistics.Variance(array)
+                : StreamingStatistics.Variance(samples);
+        }
+
+        /// <summary>
+        /// Estimates the unbiased population variance from the provided samples.
+        /// On a dataset of size N will use an N-1 normalizer (Bessel's correction).
+        /// Returns NaN if data has less than two entries or if any entry is NaN.
+        /// </summary>
+        /// <param name="samples">A subset of samples, sampled from the full population.</param>
+        public static double Variance(this IEnumerable<float> samples)
+        {
+            var array = samples as float[];
             return array != null
                 ? ArrayStatistics.Variance(array)
                 : StreamingStatistics.Variance(samples);
@@ -152,6 +237,20 @@ namespace MathNet.Numerics.Statistics
         public static double PopulationVariance(this IEnumerable<double> population)
         {
             var array = population as double[];
+            return array != null
+                ? ArrayStatistics.PopulationVariance(array)
+                : StreamingStatistics.PopulationVariance(population);
+        }
+
+        /// <summary>
+        /// Evaluates the variance from the provided full population.
+        /// On a dataset of size N will use an N normalizer and would thus be biased if applied to a subset.
+        /// Returns NaN if data is empty or if any entry is NaN.
+        /// </summary>
+        /// <param name="population">The full population data.</param>
+        public static double PopulationVariance(this IEnumerable<float> population)
+        {
+            var array = population as float[];
             return array != null
                 ? ArrayStatistics.PopulationVariance(array)
                 : StreamingStatistics.PopulationVariance(population);
@@ -187,6 +286,20 @@ namespace MathNet.Numerics.Statistics
         /// Estimates the unbiased population standard deviation from the provided samples.
         /// On a dataset of size N will use an N-1 normalizer (Bessel's correction).
         /// Returns NaN if data has less than two entries or if any entry is NaN.
+        /// </summary>
+        /// <param name="samples">A subset of samples, sampled from the full population.</param>
+        public static double StandardDeviation(this IEnumerable<float> samples)
+        {
+            var array = samples as float[];
+            return array != null
+                ? ArrayStatistics.StandardDeviation(array)
+                : StreamingStatistics.StandardDeviation(samples);
+        }
+
+        /// <summary>
+        /// Estimates the unbiased population standard deviation from the provided samples.
+        /// On a dataset of size N will use an N-1 normalizer (Bessel's correction).
+        /// Returns NaN if data has less than two entries or if any entry is NaN.
         /// Null-entries are ignored.
         /// </summary>
         /// <param name="samples">A subset of samples, sampled from the full population.</param>
@@ -204,6 +317,20 @@ namespace MathNet.Numerics.Statistics
         public static double PopulationStandardDeviation(this IEnumerable<double> population)
         {
             var array = population as double[];
+            return array != null
+                ? ArrayStatistics.PopulationStandardDeviation(array)
+                : StreamingStatistics.PopulationStandardDeviation(population);
+        }
+
+        /// <summary>
+        /// Evaluates the standard deviation from the provided full population.
+        /// On a dataset of size N will use an N normalizer and would thus be biased if applied to a subset.
+        /// Returns NaN if data is empty or if any entry is NaN.
+        /// </summary>
+        /// <param name="population">The full population data.</param>
+        public static double PopulationStandardDeviation(this IEnumerable<float> population)
+        {
+            var array = population as float[];
             return array != null
                 ? ArrayStatistics.PopulationStandardDeviation(array)
                 : StreamingStatistics.PopulationStandardDeviation(population);
@@ -385,6 +512,22 @@ namespace MathNet.Numerics.Statistics
         /// Estimates the unbiased population covariance from the provided samples.
         /// On a dataset of size N will use an N-1 normalizer (Bessel's correction).
         /// Returns NaN if data has less than two entries or if any entry is NaN.
+        /// </summary>
+        /// <param name="samples1">A subset of samples, sampled from the full population.</param>
+        /// <param name="samples2">A subset of samples, sampled from the full population.</param>
+        public static double Covariance(this IEnumerable<float> samples1, IEnumerable<float> samples2)
+        {
+            var array1 = samples1 as float[];
+            var array2 = samples2 as float[];
+            return array1 != null && array2 != null
+                ? ArrayStatistics.Covariance(array1, array2)
+                : StreamingStatistics.Covariance(samples1, samples2);
+        }
+
+        /// <summary>
+        /// Estimates the unbiased population covariance from the provided samples.
+        /// On a dataset of size N will use an N-1 normalizer (Bessel's correction).
+        /// Returns NaN if data has less than two entries or if any entry is NaN.
         /// Null-entries are ignored.
         /// </summary>
         /// <param name="samples1">A subset of samples, sampled from the full population.</param>
@@ -405,6 +548,22 @@ namespace MathNet.Numerics.Statistics
         {
             var array1 = population1 as double[];
             var array2 = population2 as double[];
+            return array1 != null && array2 != null
+                ? ArrayStatistics.PopulationCovariance(array1, array2)
+                : StreamingStatistics.PopulationCovariance(population1, population2);
+        }
+
+        /// <summary>
+        /// Evaluates the population covariance from the provided full populations.
+        /// On a dataset of size N will use an N normalizer and would thus be biased if applied to a subset.
+        /// Returns NaN if data is empty or if any entry is NaN.
+        /// </summary>
+        /// <param name="population1">The full population data.</param>
+        /// <param name="population2">The full population data.</param>
+        public static double PopulationCovariance(this IEnumerable<float> population1, IEnumerable<float> population2)
+        {
+            var array1 = population1 as float[];
+            var array2 = population2 as float[];
             return array1 != null && array2 != null
                 ? ArrayStatistics.PopulationCovariance(array1, array2)
                 : StreamingStatistics.PopulationCovariance(population1, population2);
@@ -930,6 +1089,22 @@ namespace MathNet.Numerics.Statistics
         public static double Entropy(IEnumerable<double?> data)
         {
             return StreamingStatistics.Entropy(data.Where(d => d.HasValue).Select(d => d.Value));
+        }
+
+        /// <summary>
+        /// Evaluates the sample mean over a moving window, for each samples.
+        /// Returns NaN if no data is empty or if any entry is NaN.
+        /// </summary>
+        /// <param name="samples">The sample stream to calculate the mean of.</param>
+        /// <param name="windowSize">The number of last samples to consider.</param>
+        public static IEnumerable<double> MovingAverage(this IEnumerable<double> samples, int windowSize)
+        {
+            var movingStatistics = new MovingStatistics(windowSize);
+            return samples.Select(sample =>
+            {
+                movingStatistics.Push(sample);
+                return movingStatistics.Mean;
+            });
         }
     }
 }

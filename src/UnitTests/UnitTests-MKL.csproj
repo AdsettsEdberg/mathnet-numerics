@@ -16,8 +16,8 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DefineConstants>TRACE;NATIVEMKL</DefineConstants>
-    <OutputPath>..\..\out\MKL\Windows\x86\</OutputPath>
+    <DefineConstants>TRACE;NATIVE;MKL</DefineConstants>
+    <OutputPath>..\..\out\MKL\Windows\</OutputPath>
     <IntermediateOutputPath>..\..\obj\MKL\Windows\x86\</IntermediateOutputPath>
     <BaseIntermediateOutputPath>..\..\obj\MKL\Windows\x86\</BaseIntermediateOutputPath>
     <Optimize>true</Optimize>
@@ -25,11 +25,11 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <NoWarn>1591</NoWarn>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DefineConstants>TRACE;DEBUG;NATIVEMKL</DefineConstants>
-    <OutputPath>..\..\out\MKL\Windows\x86\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NATIVE;MKL</DefineConstants>
+    <OutputPath>..\..\out\MKL\Windows\</OutputPath>
     <IntermediateOutputPath>..\..\obj\MKL\Windows\x86\</IntermediateOutputPath>
     <BaseIntermediateOutputPath>..\..\obj\MKL\Windows\x86\</BaseIntermediateOutputPath>
     <Optimize>false</Optimize>
@@ -38,55 +38,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>1591</NoWarn>
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>..\..\out\MKL\Windows\x86\</OutputPath>
-    <IntermediateOutputPath>..\..\obj\MKL\Windows\x86\</IntermediateOutputPath>
-    <BaseIntermediateOutputPath>..\..\obj\MKL\Windows\x86\</BaseIntermediateOutputPath>
-    <DefineConstants>TRACE;NATIVEMKL</DefineConstants>
-    <Optimize>true</Optimize>
-    <NoWarn>1591</NoWarn>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\out\MKL\Windows\x86\</OutputPath>
-    <IntermediateOutputPath>..\..\obj\MKL\Windows\x86\</IntermediateOutputPath>
-    <BaseIntermediateOutputPath>..\..\obj\MKL\Windows\x86\</BaseIntermediateOutputPath>
-    <DefineConstants>TRACE;DEBUG;NATIVEMKL</DefineConstants>
-    <NoWarn>1591</NoWarn>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>..\..\out\MKL\Windows\x64\</OutputPath>
-    <IntermediateOutputPath>..\..\obj\MKL\Windows\x64\</IntermediateOutputPath>
-    <BaseIntermediateOutputPath>..\..\obj\MKL\Windows\x64\</BaseIntermediateOutputPath>
-    <DefineConstants>TRACE;NATIVEMKL</DefineConstants>
-    <Optimize>true</Optimize>
-    <NoWarn>1591</NoWarn>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\out\MKL\Windows\x64\</OutputPath>
-    <IntermediateOutputPath>..\..\obj\MKL\Windows\x64\</IntermediateOutputPath>
-    <BaseIntermediateOutputPath>..\..\obj\MKL\Windows\x64\</BaseIntermediateOutputPath>
-    <DefineConstants>TRACE;DEBUG;NATIVEMKL</DefineConstants>
-    <NoWarn>1591</NoWarn>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -384,8 +336,15 @@
       <Project>{b7cae5f4-a23f-4438-b5be-41226618b695}</Project>
       <Name>Numerics</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TestData\TestData.csproj">
+      <Project>{af3253c9-4db5-45a0-98cf-c105fda9da47}</Project>
+      <Name>TestData</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\NUnit\lib\nunit.framework.dll</HintPath>
